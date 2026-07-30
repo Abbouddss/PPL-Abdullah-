@@ -210,6 +210,22 @@ input,textarea,select{font-family:inherit}
 .submit-day-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.3)}
 .submit-day-btn.submitted{background:linear-gradient(135deg,#166534,#15803d);cursor:default;transform:none}
 
+/* LATEST PROGRESS */
+.lp-day-block{background:var(--bg-glass);backdrop-filter:blur(16px);border:1px solid var(--border-glass);border-radius:var(--radius-lg);padding:18px 20px;margin-bottom:14px;box-shadow:var(--shadow-sm)}
+.lp-day-title{font-size:14px;font-weight:800;color:var(--text-dark);margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.lp-day-date{font-size:11px;color:#888;font-weight:500}
+.lp-ex-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-top:14px}
+.lp-ex-card{background:#fff;border:1px solid #eee;border-radius:12px;padding:12px 14px;position:relative}
+.lp-ex-name{font-size:12px;font-weight:800;color:var(--text-dark);margin-bottom:6px;line-height:1.3}
+.lp-stat{display:flex;align-items:baseline;gap:4px;margin-bottom:2px}
+.lp-stat-val{font-size:20px;font-weight:900;color:#1C1E23;letter-spacing:-.5px}
+.lp-stat-unit{font-size:11px;color:#aaa;font-weight:500}
+.lp-stat-label{font-size:10px;color:#bbb;text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+.lp-badge-best{position:absolute;top:10px;right:10px;background:#FEF3C7;color:#92400E;font-size:9px;font-weight:800;padding:2px 7px;border-radius:20px;border:1px solid #FDE68A}
+.lp-badge-day{background:#1C1E2310;color:#1C1E23;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;border:1px solid #ddd}
+.lp-empty{color:#888;font-size:13px;padding:20px 0;text-align:center}
+.lp-notes{font-size:11px;color:#888;margin-top:6px;font-style:italic;border-top:1px solid #f0f0f0;padding-top:5px}
+
 /* Rest panel */
 .rest-panel{background:var(--bg-glass);backdrop-filter:blur(20px);border:1px solid var(--border-glass);border-radius:var(--radius-lg);padding:48px;text-align:center}
 .rest-panel .rest-emoji{font-size:64px;margin-bottom:16px}
@@ -573,6 +589,24 @@ input,textarea,select{font-family:inherit}
 
     <!-- Workout panels -->
     <div id="workoutPanels"></div>
+
+    <!-- ===== LATEST PROGRESS ===== -->
+    <div style="margin-top:32px">
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px">
+        <div class="section-title" style="margin:0">📈 Latest Progress</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-left:auto">
+          <button id="lpBtnAll" onclick="showLatestProgress('all')"
+            style="background:#1C1E23;color:#fff;border-radius:9px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid transparent;transition:.15s">
+            Show All Days
+          </button>
+          <button id="lpBtnToday" onclick="showLatestProgress('today')"
+            style="background:#f0f0f0;color:#555;border-radius:9px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid transparent;transition:.15s">
+            Show Last Session (Today's Type)
+          </button>
+        </div>
+      </div>
+      <div id="latestProgressContainer"></div>
+    </div>
   </div>
 
   <!-- ========== NUTRITION ========== -->
@@ -918,6 +952,8 @@ const WORKOUTS_BASE = {
         exercises: [
           {name:'Reverse Curl',          primary:['Forearms'],                     secondary:['Biceps']},
           {name:'Dumbbell Ulnar Deviation', primary:['Wrist & Forearm Stabilizers'], secondary:[]},
+          {name:'Single Arm Cable Wrist Curl',        primary:['Forearm Flexors'],  secondary:[]},
+          {name:'Single Arm Reverse Cable Wrist Curl',primary:['Forearm Extensors'],secondary:[]},
         ]
       },
     ]
@@ -1017,28 +1053,30 @@ const EXERCISE_VIDEOS = {
   // PUSH DAY
   'Bench Press OR Incline Dumbbell Press': 'vcBig73ojpE',
   'Dumbbell Press':               'O7ECGhZj_Hc',
-  'Chest Fly Machine':            'Iwe6AmxVf7o',
+  'Chest Fly Machine':            'g3T7LsEeDWQ',
   'Shoulder Press':               'qEwKCR5JCog',
   'Cable Lateral Raise':          'Z5FA9aq3L6A',
   'Cable Front Raise':            'vtH93qBItdk',
-  'V-Bar Pushdown':               'vB5OHsJ3EME',
-  'Overhead Triceps Extension':   'nRiJVZDpdL0',
-  'Rope Triceps Extension':       'kiuVA0gs3EI',
+  'V-Bar Pushdown':               'WJD82PDO4XI',
+  'Overhead Triceps Extension':   'qwzzqLf9TjE',
+  'Rope Triceps Extension':       'JDEDaZTEzGE',
   // PULL DAY
   'Lat Pulldown':                 'JGeRYIZdojU',
   'Seated Wide-Grip Row':         'xQNrFHEMhI4',
-  'Lat Pullover':                 'rT7DgCr-3pg',
+  'Lat Pullover':                 'oxpAl14EYyc',
   'Rear Delt Fly':                'nlkF7_2O_Lw',
   'Preacher Curl':                'fIWP-FRFNU0',
-  'Bayesian Curl':                '8PXe7YNOfb4',
+  'Bayesian Curl':                'ppcIRaYJteI',
   'Hammer Curl':                  'TwD-YGVP4Bk',
   'Reverse Curl':                 'If_kEOf5x90',
-  'Dumbbell Ulnar Deviation':     'hUA-fIpM7nA',
+  'Dumbbell Ulnar Deviation':     'Ce3yFOO1Hjk',
+  'Single Arm Cable Wrist Curl':        '8pe6iqq_5oA',
+  'Single Arm Reverse Cable Wrist Curl':'cmJ4cRu9Keo',
   // LEGS DAY
   'Squats':                       'ultWZbUMPL8',
   'Leg Extension':                'YyvSfVjQeL0',
-  'Hamstring Curl':               'ELOCsoDSmrg',
-  'Calf Raise':                   'SRUtMJ0tE2A',
+  'Hamstring Curl':               'qYuwgGnPBZw',
+  'Calf Raise':                   'dhRz1Ns60Zg',
   'Barbell Hip Thrust':           '5S8SApGU_Lk',
   'Hanging Leg Raise':            '_jLskVdzS4o',
   'Cable Crunch OR Crunch Machine': 'ToJeyhydUxU',
@@ -1116,6 +1154,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   buildExDatabase();
   buildHistory();
   buildStrengthLog();
+  buildLatestProgress();
 });
 
 /* ===================================================
@@ -1129,7 +1168,7 @@ function navTo(pageId, btn){
   document.getElementById('page-'+pageId).classList.add('active');
   if(pageId==='analytics') updateAnalytics();
   if(pageId==='history') buildHistory();
-  if(pageId==='workout') refreshWorkoutPills();
+  if(pageId==='workout'){ refreshWorkoutPills(); buildLatestProgress(); }
 }
 
 /* ===================================================
@@ -1745,6 +1784,7 @@ function submitWorkoutDay(dayName, dateStr){
   updateDashMetrics();
   showToast(`🏆 ${dayName} submitted! ${doneCount}/${exercises.length} exercises saved to ${formatDateLabel(dateKey)}`);
   buildHistory();
+  buildLatestProgress();
 }
 
 function unsaveWorkoutDay(dayName, dateStr){
@@ -2571,6 +2611,167 @@ function renderExDB(filter, bodyPart){
 }
 
 /* ===================================================
+   LATEST PROGRESS
+   =================================================== */
+
+// Scan ALL localStorage keys for submitted workout sessions
+// Returns array of {dayName, dateStr, exercises:{exName:{weight,repsAchieved,notes,done}}, submittedAt}
+function getAllSubmittedSessions(){
+  const sessions=[];
+  for(let i=0;i<localStorage.length;i++){
+    const k=localStorage.key(i);
+    if(!k||!k.startsWith('abd_wk_')) continue;
+    try{
+      const val=JSON.parse(localStorage.getItem(k));
+      if(!val||!val.submitted) continue;
+      // key format: abd_wk_Push_2025-06-25  (after abd_ prefix)
+      const raw=k.replace('abd_wk_','');
+      // date is always last 10 chars YYYY-MM-DD
+      const dateStr=raw.slice(-10);
+      const dayName=raw.slice(0,raw.length-11); // remove _YYYY-MM-DD
+      // Map safeKey back to actual day name
+      const realDay=['Push','Pull','Legs'].find(d=>safeKey(d)===dayName)||dayName;
+      sessions.push({dayName:realDay, dateStr, exercises:val.exercises||{}, submittedAt:val.submittedAt||''});
+    }catch(e){}
+  }
+  // Sort newest first
+  sessions.sort((a,b)=>b.dateStr.localeCompare(a.dateStr));
+  return sessions;
+}
+
+// For a given exercise name, find the BEST weight ever logged (highest across all sessions)
+// Also return the most recent session's data
+function getBestAndLatestForExercise(exName, sessions){
+  const ek=safeKey(exName);
+  let bestWeight=0, bestDate='', latestWeight=0, latestReps='', latestNotes='', latestDate='';
+  for(const s of sessions){
+    const d=s.exercises[ek];
+    if(!d) continue;
+    const w=parseFloat(d.weight)||0;
+    // Latest (first match since sorted newest first)
+    if(!latestDate && d.weight){
+      latestWeight=w; latestReps=d.repsAchieved||''; latestNotes=d.notes||''; latestDate=s.dateStr;
+    }
+    // Best
+    if(w>bestWeight){ bestWeight=w; bestDate=s.dateStr; }
+  }
+  return {bestWeight, bestDate, latestWeight, latestReps, latestNotes, latestDate};
+}
+
+// Get the most recent submitted session for a specific dayName
+function getLastSessionForDay(dayName){
+  const sessions=getAllSubmittedSessions();
+  return sessions.find(s=>s.dayName===dayName)||null;
+}
+
+let _lpMode='all';
+function showLatestProgress(mode){
+  _lpMode=mode;
+  // Update button styles
+  document.getElementById('lpBtnAll').style.background = mode==='all' ? '#1C1E23' : '#f0f0f0';
+  document.getElementById('lpBtnAll').style.color      = mode==='all' ? '#fff' : '#555';
+  document.getElementById('lpBtnToday').style.background = mode==='today' ? '#1C1E23' : '#f0f0f0';
+  document.getElementById('lpBtnToday').style.color      = mode==='today' ? '#fff' : '#555';
+  buildLatestProgress();
+}
+
+function buildLatestProgress(){
+  const container=document.getElementById('latestProgressContainer');
+  if(!container) return;
+
+  const allSessions=getAllSubmittedSessions();
+  if(!allSessions.length){
+    container.innerHTML=`<div class="lp-day-block"><div class="lp-empty">No submitted workouts yet. Complete a workout and hit <b>Submit Day to History</b> to see your progress here.</div></div>`;
+    return;
+  }
+
+  const daysToShow = _lpMode==='today'
+    ? [getTodayPlan().name].filter(n=>n!=='Rest')
+    : ['Push','Pull','Legs'];
+
+  let html='';
+  for(const dayName of daysToShow){
+    const dayExercises=WORKOUTS[dayName]||[];
+    const daySessions=allSessions.filter(s=>s.dayName===dayName);
+    if(!daySessions.length){
+      html+=`<div class="lp-day-block">
+        <div class="lp-day-title">
+          <span>${dayName==='Push'?'💪':dayName==='Pull'?'🏋️':'🦵'}</span>
+          <span>${dayName} Day</span>
+          <span class="lp-badge-day">${dayName}</span>
+        </div>
+        <div class="lp-day-date">No sessions submitted yet</div>
+      </div>`;
+      continue;
+    }
+
+    const lastSession=daySessions[0]; // most recent
+    const lastDateLabel=formatDateLabel(lastSession.dateStr);
+
+    // Build exercise cards
+    let exCardsHtml='';
+    for(const ex of dayExercises){
+      const {bestWeight,bestDate,latestWeight,latestReps,latestNotes,latestDate}=getBestAndLatestForExercise(ex.name, daySessions);
+      if(!latestDate && !bestDate) continue; // never logged
+
+      const isBestAlsoLatest = bestDate===latestDate;
+      const displayWeight = bestWeight||latestWeight;
+      const displayReps   = latestReps;
+      const displayNotes  = latestNotes;
+      const displayDate   = bestDate||latestDate;
+
+      exCardsHtml+=`<div class="lp-ex-card">
+        ${displayWeight===bestWeight && bestWeight>0 ? '<span class="lp-badge-best">🏆 Best</span>' : ''}
+        <div class="lp-ex-name">${ex.name}</div>
+        <div class="lp-stat">
+          <span class="lp-stat-val">${displayWeight||'—'}</span>
+          ${displayWeight?'<span class="lp-stat-unit">kg</span>':''}
+        </div>
+        <div class="lp-stat-label">Best Weight</div>
+        ${displayReps?`<div style="margin-top:5px;font-size:12px;color:#555"><b>${displayReps}</b> <span style="color:#aaa;font-size:11px">reps</span></div>`:''}
+        ${displayNotes?`<div class="lp-notes">${displayNotes}</div>`:''}
+        <div style="margin-top:6px;font-size:10px;color:#bbb">from ${formatDateLabel(displayDate)}</div>
+      </div>`;
+    }
+
+    if(!exCardsHtml){
+      exCardsHtml=`<div style="color:#888;font-size:12px;padding:8px 0">No exercise data logged yet for ${dayName}.</div>`;
+    }
+
+    // Show last session mode: also show a quick "what I did last session" summary
+    let lastSessionSummaryHtml='';
+    if(_lpMode==='today'){
+      const ek_list=dayExercises.map(e=>({name:e.name,data:lastSession.exercises[safeKey(e.name)]})).filter(e=>e.data&&(e.data.weight||e.data.repsAchieved));
+      if(ek_list.length){
+        lastSessionSummaryHtml=`<div style="background:#1C1E2308;border-radius:10px;padding:12px 14px;margin-bottom:14px;border-left:3px solid #5B8DF6">
+          <div style="font-size:11px;font-weight:800;color:#5B8DF6;letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px">Last Session — ${lastDateLabel}</div>
+          <div style="display:flex;flex-direction:column;gap:5px">
+            ${ek_list.map(e=>`<div style="display:flex;gap:10px;align-items:center;font-size:13px">
+              <span style="flex:1;color:#333;font-weight:600">${e.name}</span>
+              ${e.data.weight?`<span style="font-weight:800;color:#1C1E23">${e.data.weight} kg</span>`:''}
+              ${e.data.repsAchieved?`<span style="color:#888">× ${e.data.repsAchieved} reps</span>`:''}
+            </div>`).join('')}
+          </div>
+        </div>`;
+      }
+    }
+
+    html+=`<div class="lp-day-block">
+      <div class="lp-day-title">
+        <span>${dayName==='Push'?'💪':dayName==='Pull'?'🏋️':'🦵'}</span>
+        <span>${dayName} Day</span>
+        <span class="lp-badge-day">${dayName}</span>
+      </div>
+      <div class="lp-day-date">${daySessions.length} session${daySessions.length!==1?'s':''} logged · Last: ${lastDateLabel}</div>
+      ${lastSessionSummaryHtml}
+      <div class="lp-ex-grid">${exCardsHtml}</div>
+    </div>`;
+  }
+
+  container.innerHTML=html;
+}
+
+/* ===================================================
    GLOBAL SEARCH
    =================================================== */
 const SEARCH_INDEX=[
@@ -2626,3 +2827,4 @@ function showToast(msg,bg=''){
 </script>
 </body>
 </html>
+Update index.html to latest dashboard
